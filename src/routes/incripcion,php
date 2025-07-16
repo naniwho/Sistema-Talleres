@@ -1,0 +1,35 @@
+<?php
+
+require_once __DIR__ . '/../../vendor/autoload.php';
+
+use App\Controllers\InscripcionControlador;
+
+header("Content-Type: application/json");
+
+$metodo = $_SERVER['REQUEST_METHOD'];
+$controlador = new InscripcionControlador();
+
+switch ($metodo) {
+    case 'GET':
+        $controlador->listar();
+        break;
+
+    case 'POST':
+        // Si en el JSON viene un campo "id", asumimos que quiere actualizar.
+        $data = json_decode(file_get_contents("php://input"), true);
+        if (isset($data['id_inscripcion'])) {
+            $controlador->actualizar();
+        } else {
+            $controlador->crear();
+        }
+        break;
+
+    case 'DELETE':
+        $controlador->eliminar();
+        break;
+
+    default:
+        http_response_code(405);
+        echo json_encode(['error' => 'Método no permitido']);
+        break;
+}
